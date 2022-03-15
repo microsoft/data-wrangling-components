@@ -31,12 +31,21 @@ const DebugPage = lazy(() =>
 	),
 )
 
+const TransformPage = lazy(() =>
+	/* webpackChunkName: "TransformPage " */ import('~pages/TransformPage').then(
+		module => ({
+			default: module.TransformPage,
+		}),
+	),
+)
+
 export const RouteOptions: React.FC = memo(function RouteOptions() {
 	return (
 		<Routes>
 			<Route path={Pages.Prepare.path} element={<PrepareDataPage />} />
 			<Route path={Pages.Performance.path} element={<PerfPage />} />
 			<Route path={Pages.Debug.path} element={<DebugPage />} />
+			<Route path={Pages.Transform.path} element={<TransformPage />} />
 			<Route path="/" element={<PrepareDataPage />} />
 		</Routes>
 	)

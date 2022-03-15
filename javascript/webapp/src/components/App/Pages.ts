@@ -8,11 +8,15 @@ export const Pages = {
 		path: '/performance',
 	},
 	Prepare: {
-		name: 'Prepare Data',
+		name: 'Prepare data',
 		path: '/prepare',
 	},
 	Debug: {
-		name: 'Debug Page',
+		name: 'Debugger',
 		path: '/debug',
+	},
+	Transform: {
+		name: 'Direct transform',
+		path: '/transform',
 	},
 }

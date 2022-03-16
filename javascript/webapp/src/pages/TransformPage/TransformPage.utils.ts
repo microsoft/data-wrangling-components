@@ -39,10 +39,5 @@ export function findStep<T>(
 	steps: Step[],
 	template: Partial<Step<T>>,
 ): Step | undefined {
-	return steps.find(step => {
-		if (step.verb === template.verb) {
-			return isMatch(step.args as any, template.args as any)
-		}
-		return false
-	})
+	return steps.find(step => isMatch(step.args as any, template.args as any))
 }

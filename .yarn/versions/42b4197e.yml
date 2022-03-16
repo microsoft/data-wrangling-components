@@ -1,5 +1,3 @@
 releases:
   "@data-wrangling-components/react": minor
-
-declined:
-  - "@data-wrangling-components/webapp"
+  "@data-wrangling-components/webapp": minor

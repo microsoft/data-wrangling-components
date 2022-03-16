@@ -5,14 +5,13 @@
 import type { Step } from '@data-wrangling-components/core'
 import { ParseType, Verb } from '@data-wrangling-components/core'
 import type { ICommandBarItemProps } from '@fluentui/react'
-import { IconButton } from '@fluentui/react'
 
 import type {
 	StepAddFunction,
 	StepRemoveFunction,
 	StepUpdateFunction,
 } from '../TransformPage.types.js'
-import { createStep, findStep } from '../TransformPage.utils.js'
+import { columnListStepCommand } from './columnListStepCommand.js'
 
 export function convertNumber(
 	steps: Step[],
@@ -21,28 +20,27 @@ export function convertNumber(
 	onUpdateStep: StepUpdateFunction,
 	onRemoveStep: StepRemoveFunction,
 ): ICommandBarItemProps {
-	return {
-		key: 'convert',
-		text: 'Convert to number',
-		onRender: () => {
-			const template = {
-				verb: Verb.Convert,
-				args: {
-					columns: [column],
-					type: ParseType.Decimal,
-				},
-			}
-			const step = findStep(steps, template)
-			const click = () =>
-				step ? onRemoveStep(step) : onAddStep(createStep(template))
-			return (
-				<IconButton
-					title={`Convert column data to numbers`}
-					checked={!!step}
-					iconProps={{ iconName: 'NumberSymbol' }}
-					onClick={click}
-				/>
-			)
+	return columnListStepCommand(
+		steps,
+		column,
+		onAddStep,
+		onUpdateStep,
+		onRemoveStep,
+		{
+			verb: Verb.Convert,
+			args: {
+				type: ParseType.Decimal,
+			},
 		},
-	}
+		{
+			key: 'convert',
+			text: 'Convert to number',
+		},
+		{
+			title: `Convert column data to numbers`,
+			iconProps: {
+				iconName: 'NumberSymbol',
+			},
+		},
+	)
 }

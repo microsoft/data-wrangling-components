@@ -20,7 +20,7 @@ export function useTable(): TableContainer | undefined {
 	const [table, setTable] = useState<TableContainer | undefined>()
 	useEffect(() => {
 		const f = async () => {
-			const root = await loadCSV('data/products.csv', {
+			const root = await loadCSV('data/stocks.csv', {
 				autoType: false,
 			})
 			setTable({
@@ -40,6 +40,7 @@ export function useResult(
 	const [result, setResult] = useState<ColumnTable | undefined>()
 	useEffect(() => {
 		const f = async () => {
+			console.log(steps)
 			const res = await runPipeline(table!.table!, steps)
 			setResult(res.table)
 		}

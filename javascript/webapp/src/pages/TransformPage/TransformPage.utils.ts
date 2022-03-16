@@ -45,11 +45,3 @@ export function findStep<T>(
 ): Step | undefined {
 	return steps.find(step => isMatch(step as any, template as any))
 }
-
-export function findEntry(list: any, item: any): any {
-	return list?.find((d: any) => d === item)
-}
-
-export function removeEntry(list: any, item: any): any[] {
-	return list?.filter((d: any) => d !== item) || []
-}

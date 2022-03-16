@@ -6,7 +6,6 @@ import type { Step, TableContainer } from '@data-wrangling-components/core'
 import { runPipeline } from '@data-wrangling-components/core'
 import { loadCSV } from 'arquero'
 import type ColumnTable from 'arquero/dist/types/table/column-table'
-import { merge } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 
 import type {
@@ -84,9 +83,8 @@ export function useSteps(): {
 		(step, update) => {
 			setSteps(prev => {
 				const found = findById(prev, step)
-				const merged = merge({}, step, update)
 				const copy = [...prev]
-				copy[found] = merged
+				copy[found] = update
 				return copy
 			})
 		},

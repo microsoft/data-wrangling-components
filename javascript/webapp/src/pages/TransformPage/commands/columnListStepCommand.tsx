@@ -11,12 +11,7 @@ import type {
 	StepRemoveFunction,
 	StepUpdateFunction,
 } from '../TransformPage.types.js'
-import {
-	createStep,
-	findEntry,
-	findStep,
-	removeEntry,
-} from '../TransformPage.utils.js'
+import { createStep, findStep } from '../TransformPage.utils.js'
 
 export function columnListStepCommand(
 	steps: Step[],
@@ -30,9 +25,8 @@ export function columnListStepCommand(
 ): ICommandBarItemProps {
 	return {
 		onRender: () => {
-			// TODO: this logic should be reusable with a step templating/comparator util
 			const step = findStep(steps, template) as ColumnListStep
-			const entry = findEntry(step?.args.columns, column)
+			const entry = step?.args.columns.find(c => c === column)
 			const click = () => {
 				if (!step) {
 					// first convert, add with the single column
@@ -45,14 +39,16 @@ export function columnListStepCommand(
 					)
 				} else {
 					if (entry) {
-						const updated = removeEntry(step.args.columns, column)
+						const updated = step.args.columns.filter(c => c !== column)
 						if (updated.length === 0) {
 							// last column - remove the step entirely
 							onRemoveStep(step)
 						} else {
 							// otherwise pass the filtered list on
 							onUpdateStep(step, {
+								...step,
 								args: {
+									...step.args,
 									columns: updated,
 								},
 							})
@@ -60,7 +56,9 @@ export function columnListStepCommand(
 					} else {
 						// add this as a new column
 						onUpdateStep(step, {
+							...step,
 							args: {
+								...step.args,
 								columns: [...step.args.columns, column],
 							},
 						})

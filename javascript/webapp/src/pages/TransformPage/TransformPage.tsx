@@ -11,7 +11,10 @@ import {
 import { memo, useMemo } from 'react'
 import styled from 'styled-components'
 
+import { bin } from './commands/bin.js'
+import { binarize } from './commands/binarize.js'
 import { convertNumber } from './commands/convertNumber.js'
+import { filter } from './commands/filter.js'
 import { groupby } from './commands/groupby.js'
 import { orderby } from './commands/orderby.js'
 import { useResult, useSteps, useTable } from './TransformPage.hooks.js'
@@ -28,28 +31,22 @@ export const TransformPage: React.FC = memo(function PerfMage() {
 
 	const columnCommands = useMemo(() => {
 		return (props: any) => {
+			const column = props?.column.key
 			return createDefaultCommandBar([
-				groupby(
-					steps,
-					props?.column.key,
-					onAddStep,
-					onUpdateStep,
-					onRemoveStep,
-				),
-				convertNumber(
-					steps,
-					props?.column.key,
-					onAddStep,
-					onUpdateStep,
-					onRemoveStep,
-				),
-				orderby(
-					steps,
-					props?.column.key,
-					onAddStep,
-					onUpdateStep,
-					onRemoveStep,
-				),
+				convertNumber(steps, column, onAddStep, onUpdateStep, onRemoveStep),
+				groupby(steps, column, onAddStep, onUpdateStep, onRemoveStep),
+				orderby(steps, column, onAddStep, onUpdateStep, onRemoveStep),
+			])
+		}
+	}, [steps, onAddStep, onRemoveStep, onUpdateStep])
+
+	const transformCommands = useMemo(() => {
+		return (props: any) => {
+			const column = props?.column.key
+			return createDefaultCommandBar([
+				bin(steps, column, onAddStep, onUpdateStep, onRemoveStep),
+				binarize(steps, column, onAddStep, onUpdateStep, onRemoveStep),
+				filter(steps, column, onAddStep, onUpdateStep, onRemoveStep),
 			])
 		}
 	}, [steps, onAddStep, onRemoveStep, onUpdateStep])
@@ -75,7 +72,7 @@ export const TransformPage: React.FC = memo(function PerfMage() {
 							StatsColumnType.Max,
 							StatsColumnType.Mean,
 						],
-						commandBar: [columnCommands],
+						commandBar: [columnCommands, transformCommands],
 						histogramColumnHeaders: true,
 					}}
 				/>

@@ -41,6 +41,7 @@ export function useResult(
 		const f = async () => {
 			console.log(steps)
 			const res = await runPipeline(table!.table!, steps)
+			res.table?.print()
 			setResult(res.table)
 		}
 		if (table) {

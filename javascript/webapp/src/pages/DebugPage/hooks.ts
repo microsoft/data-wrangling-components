@@ -42,7 +42,7 @@ export function useTableStore(): TableStore {
 		const store = createTableStore()
 		TABLES.forEach(name => {
 			store.queue(name, async (name: string) =>
-				loadCSV(name, { parse, autoMax: 1000000 }),
+				loadCSV(name, { parse, autoType: false }),
 			)
 		})
 		return store

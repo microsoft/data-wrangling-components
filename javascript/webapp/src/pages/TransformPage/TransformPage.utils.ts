@@ -2,7 +2,8 @@
  * Copyright (c) Microsoft. All rights reserved.
  * Licensed under the MIT license. See LICENSE file in the project.
  */
-import type { Step } from '@data-wrangling-components/core'
+import type { Step, Verb } from '@data-wrangling-components/core'
+import { factory } from '@data-wrangling-components/core'
 import { isMatch, merge, uniqueId } from 'lodash'
 
 /**
@@ -12,16 +13,16 @@ import { isMatch, merge, uniqueId } from 'lodash'
  * @returns
  */
 // TODO: overlay could be arbitrary length
-export function createStep(step: Partial<Step>, overlay?: Partial<Step>): Step {
+export function createStep(
+	verb: Verb,
+	step: Partial<Step>,
+	overlay?: Partial<Step>,
+): Step {
 	return merge(
+		factory(verb, '', ''),
 		{
 			// TODO: overriding description for comparisons temporarily until we institute a step ID
 			description: uniqueId(),
-			verb: step.verb!,
-			args: {},
-			// these will be set by the pipeline runner
-			input: '',
-			output: '',
 		},
 		step,
 		overlay,

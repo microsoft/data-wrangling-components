@@ -7,7 +7,7 @@ import isArray from 'lodash-es/isArray.js'
 
 import { createTableStore } from '../factories.js'
 import { createPipeline } from '../index.js'
-import type { Step, TableContainer } from '../types.js'
+import type { Step, TableContainer, TableStore } from '../types.js'
 
 /**
  * This is a utility to execute a series of pipeline
@@ -19,9 +19,10 @@ import type { Step, TableContainer } from '../types.js'
 export async function runPipeline(
 	input: ColumnTable,
 	steps: Step | Step[],
+	store?: TableStore,
 ): Promise<TableContainer> {
-	const store = createTableStore()
-	const pipeline = createPipeline(store)
+	const str = store || createTableStore()
+	const pipeline = createPipeline(str)
 
 	// make sure each step has an input/output
 	// if missing we'll just chain them sequentially
@@ -49,7 +50,7 @@ export async function runPipeline(
 	// since we're creating the store the user has no opportunity
 	// to add the starting table, so we'll put it in place
 	const inp = internal[0]!.input
-	store.set({ id: inp, table: input })
+	str.set({ id: inp, table: input })
 
 	pipeline.addAll(internal as Step[])
 

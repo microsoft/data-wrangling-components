@@ -2,7 +2,13 @@
  * Copyright (c) Microsoft. All rights reserved.
  * Licensed under the MIT license. See LICENSE file in the project.
  */
-import type { ColumnListStep, Step } from '@data-wrangling-components/core'
+import type {
+	ColumnListStep,
+	Step,
+	TableContainer,
+	TableStore,
+	Verb,
+} from '@data-wrangling-components/core'
 import type { IButtonProps, ICommandBarItemProps } from '@fluentui/react'
 import { IconButton } from '@fluentui/react'
 
@@ -14,6 +20,9 @@ import type {
 import { createStep, findStep } from '../TransformPage.utils.js'
 
 export function columnListStepCommand(
+	input: TableContainer | undefined,
+	store: TableStore,
+	verb: Verb,
 	steps: Step[],
 	column: string,
 	onAddStep: StepAddFunction,
@@ -31,7 +40,7 @@ export function columnListStepCommand(
 				if (!step) {
 					// first convert, add with the single column
 					onAddStep(
-						createStep(template, {
+						createStep(verb, template, {
 							args: {
 								columns: [column],
 							},

@@ -804,7 +804,7 @@ export function run(steps: Step[], store: TableStore): Promise<TableContainer>;
 // Warning: (ae-missing-release-tag) "runPipeline" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
 //
 // @public
-export function runPipeline(input: ColumnTable, steps: Step | Step[]): Promise<TableContainer>;
+export function runPipeline(input: ColumnTable, steps: Step | Step[], store?: TableStore): Promise<TableContainer>;
 
 // Warning: (ae-missing-release-tag) "SampleArgs" is exported by the package, but it is missing a release tag (@alpha, @beta, @public, or @internal)
 //

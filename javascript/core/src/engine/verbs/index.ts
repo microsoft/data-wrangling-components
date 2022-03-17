@@ -4,7 +4,12 @@
  */
 import { BinStrategy } from '../../index.js'
 import type { Step } from '../../types.js'
-import { FieldAggregateOperation, JoinStrategy, Verb } from '../../types.js'
+import {
+	FieldAggregateOperation,
+	JoinStrategy,
+	ParseType,
+	Verb,
+} from '../../types.js'
 
 /**
  * Factory function to create new verb configs
@@ -68,6 +73,13 @@ export function factory(verb: Verb, input: string, output: string): Step {
 				},
 			}
 		case Verb.Convert:
+			return {
+				...base,
+				args: {
+					type: ParseType.Decimal,
+					columns: [],
+				},
+			}
 		case Verb.Lookup:
 		case Verb.Groupby:
 		case Verb.Dedupe:

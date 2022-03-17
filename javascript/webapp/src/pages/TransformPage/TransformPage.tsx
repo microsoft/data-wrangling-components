@@ -17,39 +17,87 @@ import { convertNumber } from './commands/convertNumber.js'
 import { filter } from './commands/filter.js'
 import { groupby } from './commands/groupby.js'
 import { orderby } from './commands/orderby.js'
-import { useResult, useSteps, useTable } from './TransformPage.hooks.js'
+import { useInputs, useResult, useSteps } from './TransformPage.hooks.js'
 
 /**
  * This is a page for testing out built-in table transform mechanisms
  */
 export const TransformPage: React.FC = memo(function PerfMage() {
-	const table = useTable()
+	const { input, store } = useInputs()
 
 	const { steps, onAddStep, onUpdateStep, onRemoveStep } = useSteps()
 
-	const result = useResult(table, steps)
+	const result = useResult(input, steps, store)
 
 	const columnCommands = useMemo(() => {
 		return (props: any) => {
 			const column = props?.column.key
 			return createDefaultCommandBar([
-				convertNumber(steps, column, onAddStep, onUpdateStep, onRemoveStep),
-				groupby(steps, column, onAddStep, onUpdateStep, onRemoveStep),
-				orderby(steps, column, onAddStep, onUpdateStep, onRemoveStep),
+				convertNumber(
+					result,
+					store,
+					steps,
+					column,
+					onAddStep,
+					onUpdateStep,
+					onRemoveStep,
+				),
+				groupby(
+					result,
+					store,
+					steps,
+					column,
+					onAddStep,
+					onUpdateStep,
+					onRemoveStep,
+				),
+				orderby(
+					result,
+					store,
+					steps,
+					column,
+					onAddStep,
+					onUpdateStep,
+					onRemoveStep,
+				),
 			])
 		}
-	}, [steps, onAddStep, onRemoveStep, onUpdateStep])
+	}, [result, store, steps, onAddStep, onRemoveStep, onUpdateStep])
 
 	const transformCommands = useMemo(() => {
 		return (props: any) => {
 			const column = props?.column.key
 			return createDefaultCommandBar([
-				bin(steps, column, onAddStep, onUpdateStep, onRemoveStep),
-				binarize(steps, column, onAddStep, onUpdateStep, onRemoveStep),
-				filter(steps, column, onAddStep, onUpdateStep, onRemoveStep),
+				bin(
+					result,
+					store,
+					steps,
+					column,
+					onAddStep,
+					onUpdateStep,
+					onRemoveStep,
+				),
+				binarize(
+					result,
+					store,
+					steps,
+					column,
+					onAddStep,
+					onUpdateStep,
+					onRemoveStep,
+				),
+				filter(
+					result,
+					store,
+					steps,
+					column,
+					onAddStep,
+					onUpdateStep,
+					onRemoveStep,
+				),
 			])
 		}
-	}, [steps, onAddStep, onRemoveStep, onUpdateStep])
+	}, [result, store, steps, onAddStep, onRemoveStep, onUpdateStep])
 
 	if (!result) {
 		return null
@@ -57,9 +105,9 @@ export const TransformPage: React.FC = memo(function PerfMage() {
 	return (
 		<Container>
 			<Table>
-				<ArqueroTableHeader table={result} />
+				<ArqueroTableHeader table={result.table!} />
 				<ArqueroDetailsList
-					table={result}
+					table={result.table!}
 					isHeadersFixed
 					features={{
 						statsColumnHeaders: true,

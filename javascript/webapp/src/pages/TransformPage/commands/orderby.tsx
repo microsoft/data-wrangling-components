@@ -2,7 +2,12 @@
  * Copyright (c) Microsoft. All rights reserved.
  * Licensed under the MIT license. See LICENSE file in the project.
  */
-import type { OrderbyStep, Step } from '@data-wrangling-components/core'
+import type {
+	OrderbyStep,
+	Step,
+	TableContainer,
+	TableStore,
+} from '@data-wrangling-components/core'
 import { SortDirection, Verb } from '@data-wrangling-components/core'
 import type { ICommandBarItemProps } from '@fluentui/react'
 import { IconButton } from '@fluentui/react'
@@ -15,6 +20,8 @@ import type {
 import { createStep, findStep } from '../TransformPage.utils.js'
 
 export function orderby(
+	input: TableContainer | undefined,
+	store: TableStore,
 	steps: Step[],
 	column: string,
 	onAddStep: StepAddFunction,
@@ -34,7 +41,7 @@ export function orderby(
 			const click = () => {
 				if (!step) {
 					onAddStep(
-						createStep(template, {
+						createStep(Verb.Orderby, template, {
 							args: {
 								orders: [{ column, direction: SortDirection.Ascending }],
 							},

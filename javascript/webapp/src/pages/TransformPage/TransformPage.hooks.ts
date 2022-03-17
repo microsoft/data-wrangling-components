@@ -2,11 +2,14 @@
  * Copyright (c) Microsoft. All rights reserved.
  * Licensed under the MIT license. See LICENSE file in the project.
  */
-import type { Step, TableContainer } from '@data-wrangling-components/core'
-import { runPipeline } from '@data-wrangling-components/core'
+import type {
+	Step,
+	TableContainer,
+	TableStore,
+} from '@data-wrangling-components/core'
+import { createTableStore, runPipeline } from '@data-wrangling-components/core'
 import { loadCSV } from 'arquero'
-import type ColumnTable from 'arquero/dist/types/table/column-table'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type {
 	StepAddFunction,
@@ -14,6 +17,25 @@ import type {
 	StepUpdateFunction,
 } from './TransformPage.types.js'
 import { findById } from './TransformPage.utils.js'
+
+export function useInputs(): {
+	input: TableContainer | undefined
+	store: TableStore
+} {
+	const input = useTable()
+	const store = useMemo(() => createTableStore(), [])
+
+	useEffect(() => {
+		if (input) {
+			store.set(input)
+		}
+	}, [input, store])
+
+	return {
+		input,
+		store,
+	}
+}
 
 export function useTable(): TableContainer | undefined {
 	const [table, setTable] = useState<TableContainer | undefined>()
@@ -33,25 +55,26 @@ export function useTable(): TableContainer | undefined {
 }
 
 export function useResult(
-	table: TableContainer | undefined,
+	input: TableContainer | undefined,
 	steps: Step[],
-): ColumnTable | undefined {
-	const [result, setResult] = useState<ColumnTable | undefined>()
+	store: TableStore,
+): TableContainer | undefined {
+	const [result, setResult] = useState<TableContainer | undefined>()
 	useEffect(() => {
 		const f = async () => {
 			console.log(steps)
-			const res = await runPipeline(table!.table!, steps)
+			const res = await runPipeline(input?.table!, steps, store)
 			res.table?.print()
-			setResult(res.table)
+			setResult(res)
 		}
-		if (table) {
+		if (input) {
 			if (steps.length > 0) {
 				f()
 			} else {
-				setResult(table.table)
+				setResult(input)
 			}
 		}
-	}, [table, steps, setResult])
+	}, [input, store, steps, setResult])
 	return result
 }
 

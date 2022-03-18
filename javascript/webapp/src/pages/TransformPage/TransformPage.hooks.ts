@@ -8,6 +8,7 @@ import type {
 	TableStore,
 } from '@data-wrangling-components/core'
 import { createTableStore, runPipeline } from '@data-wrangling-components/core'
+import type { IColumn } from '@fluentui/react'
 import { loadCSV } from 'arquero'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -18,18 +19,25 @@ import type {
 } from './TransformPage.types.js'
 import { findById } from './TransformPage.utils.js'
 
+export * from './hooks'
+
 export function useInputs(): {
 	input: TableContainer | undefined
 	store: TableStore
 } {
-	const input = useTable()
+	const input = useTable('data/companies.csv')
+	const other = useTable('data/products.csv')
+
 	const store = useMemo(() => createTableStore(), [])
 
 	useEffect(() => {
 		if (input) {
 			store.set(input)
 		}
-	}, [input, store])
+		if (other) {
+			store.set(other)
+		}
+	}, [input, other, store])
 
 	return {
 		input,
@@ -37,20 +45,20 @@ export function useInputs(): {
 	}
 }
 
-export function useTable(): TableContainer | undefined {
+export function useTable(path: string): TableContainer | undefined {
 	const [table, setTable] = useState<TableContainer | undefined>()
 	useEffect(() => {
 		const f = async () => {
-			const root = await loadCSV('data/stocks.csv', {
+			const root = await loadCSV(path, {
 				autoType: false,
 			})
 			setTable({
-				id: 'data/stocks.csv',
+				id: path,
 				table: root,
 			})
 		}
 		void f()
-	}, [])
+	}, [path])
 	return table
 }
 
@@ -63,7 +71,7 @@ export function useResult(
 	useEffect(() => {
 		const f = async () => {
 			console.log(steps)
-			const res = await runPipeline(input?.table!, steps, store)
+			const res = await runPipeline(input!.table!, steps, store)
 			res.table?.print()
 			setResult(res)
 		}
@@ -120,5 +128,24 @@ export function useSteps(): {
 		onAddStep: handleAddStep,
 		onUpdateStep: handleUpdateStep,
 		onRemoveStep: handleRemoveStep,
+	}
+}
+
+export function useColumnSelection(): {
+	selectedColumn: string | undefined
+	onColumnClick: any
+} {
+	const [selectedColumn, setSelectedColumn] = useState<string | undefined>()
+	const onColumnClick = useCallback(
+		(e?: any, column?: IColumn) => {
+			setSelectedColumn(prev =>
+				prev === column?.key ? undefined : column?.key,
+			)
+		},
+		[setSelectedColumn],
+	)
+	return {
+		selectedColumn,
+		onColumnClick,
 	}
 }

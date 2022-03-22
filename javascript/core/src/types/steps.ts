@@ -4,6 +4,8 @@
  */
 import type {
 	BinStrategy,
+	BooleanComparisonOperator,
+	BooleanLogicalOperator,
 	FieldAggregateOperation,
 	FilterCompareType,
 	JoinStrategy,
@@ -39,14 +41,15 @@ export interface Step<T = unknown> {
 	description?: string
 }
 
-export type StepFunction = (
-	step: Step,
+export type StepFunction<T> = (
+	step: Step<T>,
 	store: TableStore,
 ) => Promise<TableContainer>
 
 export type AggregateStep = Step<AggregateArgs>
 export type BinStep = Step<BinArgs>
 export type BinarizeStep = Step<BinarizeArgs>
+export type BooleanStep = Step<BooleanArgs>
 export type ChainStep = Step<ChainArgs>
 export type ColumnListStep = Step<InputColumnListArgs>
 export type ConvertStep = Step<ConvertArgs>
@@ -143,6 +146,10 @@ export interface BinArgs extends InputColumnArgs, OutputColumnArgs {
 
 export interface BinarizeArgs extends FilterArgs, OutputColumnArgs {}
 
+export interface BooleanArgs extends InputColumnListArgs, OutputColumnArgs {
+	operator: BooleanLogicalOperator
+}
+
 export interface ChainArgs {
 	/**
 	 * List of steps to execute
@@ -215,11 +222,16 @@ export interface Criterion {
 	 * or against the value of another column
 	 */
 	type: FilterCompareType
-	operator: NumericComparisonOperator | StringComparisonOperator
+	// TODO: we should support Date comparisons
+	operator:
+		| NumericComparisonOperator
+		| StringComparisonOperator
+		| BooleanComparisonOperator
 }
 
 export interface FilterArgs extends InputColumnArgs {
 	criteria: Criterion[]
+	logical?: BooleanLogicalOperator
 }
 
 export interface FoldArgs extends InputColumnListArgs {

@@ -5,41 +5,27 @@
 import { bin as aqbin, op } from 'arquero'
 import type ColumnTable from 'arquero/dist/types/table/column-table'
 
-import { container } from '../../factories.js'
-import type { BinArgs, Step, TableStore } from '../../index.js'
+import type { BinArgs } from '../../index.js'
 import { BinStrategy } from '../../index.js'
-import type { TableContainer } from '../../types.js'
+import { makeStepFunction, makeStepNode, wrapColumnStep } from '../factories.js'
 import { fixedBinCount, fixedBinStep } from '../util/index.js'
 
 /**
  * Executes a bin aggregate, which effectively truncates values to a bin boundary for histograms.
- * @param step
- * @param store
- * @returns
  */
-export async function bin(
-	step: Step,
-	store: TableStore,
-): Promise<TableContainer> {
-	const { input, output, args } = step
-	const { to } = args as BinArgs
+const doBin = wrapColumnStep<BinArgs>((input, args) =>
+	input.derive({
+		[args.to]: binExpr(input, args),
+	}),
+)
 
-	const inputTable = await store.table(input)
-
-	const rArgs = {
-		[to]: binExpr(inputTable, args as BinArgs),
-	}
-
-	return container(output, inputTable.derive(rArgs))
-}
+export const bin = makeStepFunction(doBin)
+export const binNode = makeStepNode(doBin)
 
 /**
  * Generate a bin expression that uses either auto or a fixed step
  * to force arquero to a predictable bin set.
  * https://uwdata.github.io/arquero/api/#bin
- * @param input
- * @param args
- * @returns
  */
 function binExpr(input: ColumnTable, args: BinArgs) {
 	const { strategy, column, fixedwidth, fixedcount, clamped } = args

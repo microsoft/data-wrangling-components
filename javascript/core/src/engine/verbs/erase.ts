@@ -4,35 +4,19 @@
  */
 
 import { escape } from 'arquero'
+import type ColumnTable from 'arquero/dist/types/table/column-table'
 
-import { container } from '../../factories.js'
-import type {
-	EraseArgs,
-	Step,
-	TableContainer,
-	TableStore,
-} from '../../types.js'
+import type { EraseArgs } from '../../types.js'
+import { makeStepFunction, makeStepNode, wrapColumnStep } from '../factories.js'
 
-/**
- * Executes an arquero erase operation.
- * @param step
- * @param store
- * @returns
- */
+const doErase = wrapColumnStep<EraseArgs>(
+	(input: ColumnTable, { value, column }: EraseArgs) => {
+		const func = escape((d: any) =>
+			d[column] === value ? undefined : d[column],
+		)
+		return input.derive({ [column]: func })
+	},
+)
 
-export async function erase(
-	step: Step,
-	store: TableStore,
-): Promise<TableContainer> {
-	const { input, output, args } = step
-	const { value, column } = args as EraseArgs
-	const inputTable = await store.table(input)
-
-	const func = escape((d: any) => (d[column] === value ? undefined : d[column]))
-
-	const dArgs = {
-		[column]: func,
-	}
-
-	return container(output, inputTable.derive(dArgs))
-}
+export const erase = makeStepFunction(doErase)
+export const eraseNode = makeStepNode(doErase)

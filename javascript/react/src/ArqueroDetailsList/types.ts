@@ -32,6 +32,7 @@ export type DropdownOptionSelect =
 
 export type GroupHeaderFunction = (
 	meta?: ColumnMetadata,
+	columnName?: string,
 	props?: IDetailsGroupDividerProps | undefined,
 ) => any
 
@@ -196,4 +197,8 @@ export interface ArqueroDetailsListProps
 	 * Fixed headers on top when scrolling
 	 */
 	isHeadersFixed?: boolean
+	/**
+	 * Resizable columns
+	 */
+	isResizable?: boolean
 }

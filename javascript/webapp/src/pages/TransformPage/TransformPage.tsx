@@ -122,7 +122,7 @@ export const TransformPage: React.FC = memo(function PerfMage() {
 				})
 			},
 		}),
-		[steps, result, saved],
+		[steps, result, saved, input, store],
 	)
 
 	const headerColumnCommands = useHeaderColumnCommands(

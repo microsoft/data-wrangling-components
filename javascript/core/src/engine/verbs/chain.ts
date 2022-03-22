@@ -5,10 +5,11 @@
 import { table } from 'arquero'
 
 import type { StepFunction, TableStore } from '../../index.js'
-import type { ChainArgs, Step, TableContainer } from '../../types.js'
+import type { ChainStep, TableContainer } from '../../types.js'
 import { aggregate } from './aggregate.js'
 import { bin } from './bin.js'
 import { binarize } from './binarize.js'
+import { boolean } from './boolean.js'
 import { concat } from './concat.js'
 import { convert } from './convert.js'
 import { dedupe } from './dedupe.js'
@@ -40,10 +41,11 @@ import { unorder } from './unorder.js'
 import { unroll } from './unroll.js'
 import { window } from './window.js'
 
-const verbs: Record<string, StepFunction> = {
+const verbs: Record<string, StepFunction<any>> = {
 	aggregate,
 	bin,
 	binarize,
+	boolean,
 	chain: exec,
 	concat,
 	convert,
@@ -77,9 +79,13 @@ const verbs: Record<string, StepFunction> = {
 	window,
 }
 
-async function exec(step: Step, store: TableStore): Promise<TableContainer> {
-	const { args } = step
-	const { steps, nofork } = args as ChainArgs
+async function exec(
+	step: ChainStep,
+	store: TableStore,
+): Promise<TableContainer> {
+	const {
+		args: { steps, nofork },
+	} = step
 
 	const substore = nofork ? store : await store.clone()
 
@@ -93,7 +99,8 @@ async function exec(step: Step, store: TableStore): Promise<TableContainer> {
 		const { verb } = step
 		try {
 			// fallback to chain if unspecified - this allows custom names to identify different chains
-			const fn = verbs[verb] || exec
+			const fn: StepFunction<unknown> =
+				verbs[verb] || (exec as StepFunction<any>)
 			// child store gets intermediate outputs so chain steps can do lookups
 			output = await fn(step, substore)
 			substore.set(output)
@@ -117,7 +124,7 @@ async function exec(step: Step, store: TableStore): Promise<TableContainer> {
  * This is actually the core engine for executing pipelines.
  */
 export async function chain(
-	step: Step,
+	step: ChainStep,
 	store: TableStore,
 ): Promise<TableContainer> {
 	return exec(step, store)

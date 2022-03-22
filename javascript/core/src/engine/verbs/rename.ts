@@ -2,22 +2,12 @@
  * Copyright (c) Microsoft. All rights reserved.
  * Licensed under the MIT license. See LICENSE file in the project.
  */
-import { container } from '../../factories.js'
-import type { TableStore } from '../../index.js'
-import type { RenameArgs, Step, TableContainer } from '../../types.js'
+import type { RenameArgs } from '../../types.js'
+import { makeStepFunction, makeStepNode, wrapColumnStep } from '../factories.js'
 
-/**
- * Executes an arquero column rename.
- * @param step
- * @param store
- * @returns
- */
-export async function rename(
-	step: Step,
-	store: TableStore,
-): Promise<TableContainer> {
-	const { input, output, args } = step
-	const { columns } = args as RenameArgs
-	const inputTable = await store.table(input)
-	return container(output, inputTable.rename(columns))
-}
+const doRename = wrapColumnStep<RenameArgs>((input, { columns }) =>
+	input.rename(columns),
+)
+
+export const rename = makeStepFunction(doRename)
+export const renameNode = makeStepNode(doRename)

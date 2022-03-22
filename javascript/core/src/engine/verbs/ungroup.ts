@@ -2,23 +2,9 @@
  * Copyright (c) Microsoft. All rights reserved.
  * Licensed under the MIT license. See LICENSE file in the project.
  */
+import { makeStepFunction, makeStepNode, wrapColumnStep } from '../factories.js'
 
-import { container } from '../../factories.js'
-import type { TableStore } from '../../index.js'
-import type { Step, TableContainer } from '../../types.js'
+const doUngroup = wrapColumnStep(input => input.ungroup())
 
-/**
- * Executes an arquero ungroup operation.
- * @param step
- * @param store
- * @returns
- */
-
-export async function ungroup(
-	step: Step,
-	store: TableStore,
-): Promise<TableContainer> {
-	const { input, output } = step
-	const inputTable = await store.table(input)
-	return container(output, inputTable.ungroup())
-}
+export const ungroup = makeStepFunction(doUngroup)
+export const ungroupNode = makeStepNode(doUngroup)

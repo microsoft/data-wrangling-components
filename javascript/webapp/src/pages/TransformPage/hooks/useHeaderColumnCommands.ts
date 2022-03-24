@@ -4,7 +4,7 @@
  */
 import type { Step } from '@data-wrangling-components/core'
 import { Verb } from '@data-wrangling-components/core'
-import type { ICommandBarItemProps } from '@fluentui/react'
+import type { ICommandBarItemProps, IContextualMenuItem } from '@fluentui/react'
 import { upperFirst } from 'lodash'
 import { useCallback, useMemo } from 'react'
 
@@ -79,7 +79,7 @@ function createColumnCommand(
 	template: Partial<Step>,
 	onClick: any,
 	icon: string,
-) {
+): IContextualMenuItem {
 	return {
 		key: verb,
 		text: upperFirst(verb),

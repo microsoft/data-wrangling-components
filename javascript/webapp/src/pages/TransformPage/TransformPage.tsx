@@ -9,23 +9,18 @@ import {
 	ArqueroTableHeader,
 	StatsColumnType,
 } from '@data-wrangling-components/react'
-import {
-	Callout,
-	ContextualMenuItemType,
-	DirectionalHint,
-	Dropdown,
-} from '@fluentui/react'
+import { Callout, DirectionalHint } from '@fluentui/react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { StepEditor } from './StepEditor.js'
+import { TableDropdown } from './TableDropdown.js'
 import {
 	useColumnSelection,
-	useHeaderColumnCommands,
-	useHeaderTableCommands,
 	usePerColumnCommands,
 	useResult,
 	useSteps,
+	useTableHeaderCommands,
 	useTables,
 } from './TransformPage.hooks.js'
 import { createStep } from './TransformPage.utils.js'
@@ -33,15 +28,9 @@ import { createStep } from './TransformPage.utils.js'
 /**
  * This is a page for testing out built-in table transform mechanisms
  */
-export const TransformPage: React.FC = memo(function PerfMage() {
-	const {
-		tables,
-		// store,
-		onUpdateTable,
-		onCloneTable,
-		current,
-		onCurrentChange,
-	} = useTables()
+export const TransformPage: React.FC = memo(function TransformPage() {
+	const { tables, onUpdateTable, onCloneTable, current, onCurrentChange } =
+		useTables()
 
 	const { steps, onAddStep, onUpdateStep, onRemoveStep } = useSteps(
 		current,
@@ -87,82 +76,16 @@ export const TransformPage: React.FC = memo(function PerfMage() {
 		[setCalloutHidden, onAddStep],
 	)
 
-	const pinCommand = useMemo(() => {
-		return {
-			key: '--pinned--',
-			title: 'Copy of this table in your workspace',
-			iconOnly: true,
-			disabled: steps.length === 0,
-			iconProps: {
-				iconName: 'Copy',
-			},
-			onClick: () => {
-				onCloneTable(current!)
-			},
-		}
-	}, [steps, current, onCloneTable])
-
-	const headerColumnCommands = useHeaderColumnCommands(
+	const headerCommands = useTableHeaderCommands(
+		current,
 		selectedColumn,
+		steps,
+		onCloneTable,
 		handleStepRequested,
 	)
-
-	const headerTableCommands = useHeaderTableCommands(
-		selectedColumn,
-		handleStepRequested,
-	)
-
-	const headerCommands = useMemo(
-		() => [
-			pinCommand,
-			{
-				key: '--divider-1--',
-				text: '|',
-				itemType: ContextualMenuItemType.Divider,
-				disabled: true,
-				buttonStyles: {
-					root: {
-						width: 20,
-						minWidth: 20,
-					},
-				},
-			},
-			...headerColumnCommands,
-			{
-				key: '--divider-2--',
-				text: '|',
-				itemType: ContextualMenuItemType.Divider,
-				disabled: true,
-				buttonStyles: {
-					root: {
-						width: 20,
-						minWidth: 20,
-					},
-				},
-			},
-			...headerTableCommands,
-		],
-		[pinCommand, headerColumnCommands, headerTableCommands],
-	)
-
-	const name = useMemo(() => {
-		if (steps.length > 0) {
-			return `${current?.id} (edited)`
-		}
-		return current?.id
-	}, [steps, current])
-
-	const tableOptions = useMemo(() => {
-		return (
-			tables?.map(t => ({
-				key: t.id,
-				text: t.id,
-			})) || []
-		)
-	}, [tables])
 
 	const handleTableChange = useCallback(
-		(e, opt) => {
+		(_e, opt) => {
 			const found = tables?.find(t => t.id === opt.key)
 			onCurrentChange(found)
 			onColumnReset()
@@ -191,13 +114,8 @@ export const TransformPage: React.FC = memo(function PerfMage() {
 					onAddStep={handleSave}
 				/>
 			</Callout>
-			<Dropdown
-				styles={{
-					root: {
-						width: 300,
-					},
-				}}
-				options={tableOptions}
+			<TableDropdown
+				tables={tables}
 				selectedKey={current?.id}
 				onChange={handleTableChange}
 			/>
@@ -205,7 +123,7 @@ export const TransformPage: React.FC = memo(function PerfMage() {
 				<ArqueroTableHeader
 					table={result.table!}
 					commands={headerCommands}
-					name={name}
+					name={current?.id}
 				/>
 				<ArqueroDetailsList
 					table={result.table!}

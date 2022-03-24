@@ -5,7 +5,8 @@
 import type ColumnTable from 'arquero/dist/types/table/column-table'
 
 import { container } from '../container.js'
-import { NodeImpl, VariadicNodeImpl } from '../graph/index.js'
+import type { NodeId } from '../graph/index.js'
+import { BaseNode, VariadicNodeImpl } from '../graph/index.js'
 import type {
 	SetOp,
 	Step,
@@ -27,8 +28,8 @@ export enum NodeInput {
 	Source = 'source',
 }
 
-export class StepNode<Args> extends NodeImpl<TableContainer, Args> {
-	constructor(id: string, private _computeFn: StepComputeFn<Args>) {
+export class StepNode<Args> extends BaseNode<TableContainer, Args> {
+	constructor(id: NodeId, private _computeFn: StepComputeFn<Args>) {
 		super([NodeInput.Source])
 		this.id = id
 	}
@@ -43,8 +44,8 @@ export class StepNode<Args> extends NodeImpl<TableContainer, Args> {
 	}
 }
 
-export class InputNode<Args> extends NodeImpl<TableContainer, Args> {
-	constructor(id: string, private _computeFn: InputComputeFn<Args>) {
+export class InputNode<Args> extends BaseNode<TableContainer, Args> {
+	constructor(id: NodeId, private _computeFn: InputComputeFn<Args>) {
 		super()
 		this.id = id
 	}
@@ -62,7 +63,7 @@ export class SetOperationNode<Args = unknown> extends VariadicNodeImpl<
 	TableContainer,
 	Args
 > {
-	constructor(id: string, private op: SetOp) {
+	constructor(id: NodeId, private op: SetOp) {
 		super([NodeInput.Source])
 		this.id = id
 	}

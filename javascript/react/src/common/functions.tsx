@@ -40,6 +40,7 @@ export function createDefaultCommandBar(
 	const styles = {
 		root: {
 			height: '36px',
+			alignItems: 'center',
 		},
 		primarySet: {
 			width: '100%',

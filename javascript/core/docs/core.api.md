@@ -984,6 +984,8 @@ export enum StringComparisonOperator {
 // @public (undocumented)
 export interface TableContainer<T = unknown> {
     context?: T;
+    // (undocumented)
+    definition?: Step[];
     id: string;
     metadata?: TableMetadata;
     name?: string;

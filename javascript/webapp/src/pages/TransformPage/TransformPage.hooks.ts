@@ -2,16 +2,14 @@
  * Copyright (c) Microsoft. All rights reserved.
  * Licensed under the MIT license. See LICENSE file in the project.
  */
-import type {
-	Step,
-	TableContainer,
-	TableStore,
-} from '@data-wrangling-components/core'
+import type { Step, TableContainer } from '@data-wrangling-components/core'
 import { createTableStore, runPipeline } from '@data-wrangling-components/core'
 import type { IColumn } from '@fluentui/react'
 import { loadCSV } from 'arquero'
+import { cloneDeep } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useInputTableList } from '../DebugPage/hooks.js'
 import type {
 	StepAddFunction,
 	StepRemoveFunction,
@@ -21,107 +19,161 @@ import { findById } from './TransformPage.utils.js'
 
 export * from './hooks'
 
-export function useInputs(): {
-	input: TableContainer | undefined
-	store: TableStore
+export function useTables(): {
+	tables: TableContainer[]
+	onUpdateTable: (table: TableContainer) => void
+	onCloneTable: (table: TableContainer) => void
+	current: TableContainer | undefined
+	onCurrentChange: (table: TableContainer | undefined) => void
 } {
-	const input = useTable('data/companies.csv')
-	const other = useTable('data/products.csv')
+	const [list] = useInputTableList()
+	const [tables, setTables] = useState<TableContainer[]>([])
+	const [current, setCurrent] = useState<TableContainer | undefined>()
 
-	const store = useMemo(() => createTableStore(), [])
-
+	// just resolve all the input tables up front
 	useEffect(() => {
-		if (input) {
-			store.set(input)
-		}
-		if (other) {
-			store.set(other)
-		}
-	}, [input, other, store])
+		const store = createTableStore()
+		list.forEach(name => {
+			store.queue(name, async (name: string) =>
+				loadCSV(name, { autoType: false }),
+			)
+		})
+		Promise.all(list.map(name => store.get(name))).then(results => {
+			setTables(results)
+			setCurrent(results[0])
+		})
+	}, [list])
+
+	const onUpdateTable = useCallback(
+		(table: TableContainer) => {
+			setTables(prev => {
+				const index = prev.findIndex(t => t.id === table.id)
+				const copy = [...prev]
+				copy[index] = table
+				return copy
+			})
+			setCurrent(table)
+		},
+		[setTables, setCurrent],
+	)
+
+	const onCloneTable = useCallback(
+		async (original: TableContainer) => {
+			// apply the source table steps and store the resulting output
+			// the cloned table starts "clean" with no definition steps
+			const result = await applyTableDefinition(original, tables)
+			const clone = {
+				...cloneDeep(result),
+				id: `${original?.id} (edited)`,
+				definition: [],
+			}
+			setTables(prev => [...prev, clone])
+			setCurrent(clone)
+		},
+		[tables, setTables, setCurrent],
+	)
 
 	return {
-		input,
-		store,
+		tables,
+		onUpdateTable,
+		onCloneTable,
+		current,
+		onCurrentChange: setCurrent,
 	}
 }
 
-export function useTable(path: string): TableContainer | undefined {
-	const [table, setTable] = useState<TableContainer | undefined>()
-	useEffect(() => {
-		const f = async () => {
-			const root = await loadCSV(path, {
-				autoType: false,
-			})
-			setTable({
-				id: path,
-				table: root,
-			})
-		}
-		void f()
-	}, [path])
-	return table
-}
-
+/**
+ * If the input exists and has a pipeline definition,
+ * execute the definition and return the result,
+ * otherwise return the input as is.
+ * @param table
+ * @param store
+ * @returns
+ */
 export function useResult(
-	input: TableContainer | undefined,
-	steps: Step[],
-	store: TableStore,
+	current: TableContainer | undefined,
+	tables: TableContainer[],
 ): TableContainer | undefined {
 	const [result, setResult] = useState<TableContainer | undefined>()
 	useEffect(() => {
-		const f = async () => {
-			console.log(steps)
-			const res = await runPipeline(input!.table!, steps, store)
-			res.table?.print()
+		const f = async (table: TableContainer) => {
+			const res = await applyTableDefinition(table, tables)
 			setResult(res)
 		}
-		if (input) {
-			if (steps.length > 0) {
-				f()
-			} else {
-				setResult(input)
-			}
-		}
-	}, [input, store, steps, setResult])
+		current && f(current)
+	}, [current, tables, setResult])
 	return result
 }
 
-export function useSteps(): {
+async function applyTableDefinition(
+	table: TableContainer,
+	tables?: TableContainer[],
+) {
+	if (!table.definition || table.definition.length === 0) {
+		return table
+	}
+	// create a private store just for the execution so we don't pollute the global
+	const store = createTableStore()
+	store.set(table)
+	tables?.forEach(t => store.set(t))
+	console.log(table.definition, store.list())
+	const result = await runPipeline(table.table!, table.definition!, store)
+	result.table!.print()
+	return result
+}
+
+export function useSteps(
+	table: TableContainer | undefined,
+	onUpdateTable: (table: TableContainer) => void,
+): {
 	steps: Step[]
 	onAddStep: StepAddFunction
 	onUpdateStep: StepUpdateFunction
 	onRemoveStep: StepRemoveFunction
 } {
-	const [steps, setSteps] = useState<Step[]>([])
-
 	const handleAddStep = useCallback(
 		step => {
-			setSteps(prev => [...prev, step])
+			if (table) {
+				onUpdateTable({
+					...table,
+					definition: [...(table.definition || []), step],
+				})
+			}
 		},
-		[setSteps],
+		[table, onUpdateTable],
 	)
 	const handleRemoveStep = useCallback(
 		step => {
-			setSteps(prev => {
-				const found = findById(prev, step)
-				const copy = [...prev]
+			if (table) {
+				const steps = table.definition || []
+				const found = findById(steps, step)
+				const copy = [...steps]
 				const splice = [...copy.slice(0, found), ...copy.slice(found + 1)]
-				return splice
-			})
+				onUpdateTable({
+					...table,
+					definition: splice,
+				})
+			}
 		},
-		[setSteps],
+		[table, onUpdateTable],
 	)
 	const handleUpdateStep = useCallback(
 		(step, update) => {
-			setSteps(prev => {
-				const found = findById(prev, step)
-				const copy = [...prev]
+			if (table) {
+				const steps = table.definition || []
+				const found = findById(steps, step)
+				const copy = [...steps]
 				copy[found] = update
-				return copy
-			})
+				onUpdateTable({
+					...table,
+					definition: copy,
+				})
+			}
 		},
-		[setSteps],
+		[table, onUpdateTable],
 	)
+
+	const steps = useMemo(() => table?.definition || [], [table])
 
 	return {
 		steps,
@@ -134,6 +186,7 @@ export function useSteps(): {
 export function useColumnSelection(): {
 	selectedColumn: string | undefined
 	onColumnClick: any
+	onColumnReset: any
 } {
 	const [selectedColumn, setSelectedColumn] = useState<string | undefined>()
 	const onColumnClick = useCallback(
@@ -144,8 +197,13 @@ export function useColumnSelection(): {
 		},
 		[setSelectedColumn],
 	)
+	const onColumnReset = useCallback(
+		() => setSelectedColumn(undefined),
+		[setSelectedColumn],
+	)
 	return {
 		selectedColumn,
 		onColumnClick,
+		onColumnReset,
 	}
 }

@@ -5,6 +5,7 @@
 import type ColumnTable from 'arquero/dist/types/table/column-table'
 
 import type { DataType } from './enums.js'
+import type { Step } from './steps.js'
 
 /**
  * A cell value in Arquero
@@ -85,4 +86,6 @@ export interface TableContainer<T = unknown> {
 	 * that has additional information to relay, that context can be stored here.
 	 */
 	context?: T
+
+	definition?: Step[]
 }

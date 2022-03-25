@@ -29,16 +29,16 @@ export function useSaveTableCommand(
 		},
 		[setTarget, setHidden],
 	)
+	const handleCancel = useCallback(() => setHidden(true), [setHidden])
 	return useMemo(() => {
-		return saveTable(steps, table, handleSave, handleClick, hidden, target)
-	}, [
-		steps,
-		table,
-		onCloneTable,
-		setHidden,
-		hidden,
-		target,
-		handleClick,
-		handleSave,
-	])
+		return saveTable(
+			steps,
+			table,
+			handleSave,
+			handleClick,
+			handleCancel,
+			hidden,
+			target,
+		)
+	}, [steps, table, hidden, target, handleClick, handleSave, handleCancel])
 }

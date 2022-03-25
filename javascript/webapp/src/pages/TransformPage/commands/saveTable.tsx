@@ -13,6 +13,7 @@ export function saveTable(
 	table: TableContainer | undefined,
 	onSave: any,
 	onClick: any,
+	onCancel: any,
 	hidden: boolean,
 	target: any,
 ): ICommandBarItemProps {
@@ -33,6 +34,7 @@ export function saveTable(
 						hidden={hidden}
 						target={target}
 						onSave={onSave}
+						onCancel={onCancel}
 						defaultName={`${table?.id} (edited)`}
 					/>
 					{defaultRender(props)}
@@ -43,20 +45,35 @@ export function saveTable(
 }
 
 const NameEditor = (props: any) => {
-	const { hidden, target, onSave, defaultName } = props
+	const { hidden, target, onSave, onCancel, defaultName } = props
 	const [name, setName] = useState<string | undefined>()
 	useEffect(() => {
 		setName(defaultName)
 	}, [defaultName])
-	const handleNameChange = useCallback((e, v) => setName(v), [setName])
+	const handleNameChange = useCallback(
+		(_e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, v?: string) =>
+			setName(v),
+		[setName],
+	)
+	const handleNameKeyUp = useCallback(
+		(e: any) => e.key === 'Enter' && onSave(name),
+		[onSave, name],
+	)
 	const handleSaveClick = useCallback(() => onSave(name), [onSave, name])
+	const handleDismiss = useCallback(e => onCancel(), [onCancel])
 	return (
-		<Callout target={target} hidden={hidden} setInitialFocus>
+		<Callout
+			target={target}
+			hidden={hidden}
+			setInitialFocus
+			onDismiss={handleDismiss}
+		>
 			<Container>
 				<TextField
 					placeholder="New name"
 					value={name}
 					onChange={handleNameChange}
+					onKeyUp={handleNameKeyUp}
 					styles={textFieldStyles}
 				/>
 				<IconButton

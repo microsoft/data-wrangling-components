@@ -8,6 +8,7 @@ import type {
 	TableStore,
 } from '@data-wrangling-components/core'
 import { Callout, DirectionalHint } from '@fluentui/react'
+import { useCallback } from 'react'
 
 import { StepEditor } from './StepEditor.js'
 
@@ -31,6 +32,8 @@ export const StepEditorCallout: React.FC<StepEditorCalloutProps> = (
 ) => {
 	const { column, input, store, step, onSave, onCancel, target } = props
 
+	const handleDismiss = useCallback(() => onCancel(), [onCancel])
+
 	if (!step) {
 		return null
 	}
@@ -41,6 +44,7 @@ export const StepEditorCallout: React.FC<StepEditorCalloutProps> = (
 			directionalHint={DirectionalHint.bottomAutoEdge}
 			styles={calloutStyles}
 			hidden={!step}
+			onDismiss={handleDismiss}
 		>
 			<StepEditor
 				column={column}

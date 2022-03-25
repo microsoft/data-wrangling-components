@@ -3,11 +3,13 @@
  * Licensed under the MIT license. See LICENSE file in the project.
  */
 import type { Step, TableContainer } from '@data-wrangling-components/core'
+import type { ICommandBarItemProps } from '@fluentui/react'
 import { ContextualMenuItemType } from '@fluentui/react'
 import { useMemo } from 'react'
 
 import { useHeaderColumnCommands } from './useHeaderColumnCommands.js'
 import { useHeaderTableCommands } from './useHeaderTableCommands.js'
+import { useSaveTableCommand } from './useSaveTableCommand.js'
 
 export function useTableHeaderCommands(
 	table: TableContainer | undefined,
@@ -15,21 +17,8 @@ export function useTableHeaderCommands(
 	steps: Step[],
 	onCloneTable: any,
 	onStepRequested: any,
-) {
-	const pinCommand = useMemo(() => {
-		return {
-			key: '--pinned--',
-			title: 'Copy of this table in your workspace',
-			iconOnly: true,
-			disabled: steps.length === 0,
-			iconProps: {
-				iconName: 'Copy',
-			},
-			onClick: () => {
-				onCloneTable(table!)
-			},
-		}
-	}, [steps, table, onCloneTable])
+): ICommandBarItemProps[] {
+	const pinCommand = useSaveTableCommand(steps, table, onCloneTable)
 
 	const headerColumnCommands = useHeaderColumnCommands(column, onStepRequested)
 

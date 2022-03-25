@@ -9,11 +9,10 @@ import {
 	ArqueroTableHeader,
 	StatsColumnType,
 } from '@data-wrangling-components/react'
-import { Callout, DirectionalHint } from '@fluentui/react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { StepEditor } from './StepEditor.js'
+import { StepEditorCallout } from './StepEditorCallout.js'
 import { TableDropdown } from './TableDropdown.js'
 import {
 	useColumnSelection,
@@ -50,30 +49,33 @@ export const TransformPage: React.FC = memo(function TransformPage() {
 
 	const { selectedColumn, onColumnClick, onColumnReset } = useColumnSelection()
 
-	const [calloutHidden, setCalloutHidden] = useState<boolean>(true)
 	const [calloutTarget, setCalloutTarget] = useState<any>()
+
+	// when the user clicks a new step button, we'll create a template to fill in
+	// once they save this step is stored and the candidate disposed of
+	// dismissing the interface without saving also disposed
 	const [candidateStep, setCandidateStep] = useState<Step | undefined>()
 
-	const handleDismiss = useCallback(
-		() => setCalloutHidden(true),
-		[setCalloutHidden],
-	)
 	const handleStepRequested = useCallback(
-		(ev, verb, template) => {
+		(e, verb, template) => {
 			console.log('step requested', verb, template)
-			setCalloutHidden(prev => !prev)
-			setCalloutTarget(ev)
-			setCandidateStep(createStep(verb, template))
+			setCalloutTarget(e.target.parentNode)
+			setCandidateStep(prev => (prev ? undefined : createStep(verb, template)))
 		},
-		[setCalloutHidden, setCalloutTarget, setCandidateStep],
+		[setCalloutTarget, setCandidateStep],
 	)
 
 	const handleSave = useCallback(
 		step => {
-			setCalloutHidden(true)
+			setCandidateStep(undefined)
 			onAddStep(step)
 		},
-		[setCalloutHidden, onAddStep],
+		[setCandidateStep, onAddStep],
+	)
+
+	const handleCancel = useCallback(
+		() => setCandidateStep(undefined),
+		[setCandidateStep],
 	)
 
 	const headerCommands = useTableHeaderCommands(
@@ -99,21 +101,15 @@ export const TransformPage: React.FC = memo(function TransformPage() {
 
 	return (
 		<Container>
-			<Callout
+			<StepEditorCallout
 				target={calloutTarget}
-				directionalHint={DirectionalHint.bottomAutoEdge}
-				styles={calloutStyles}
-				hidden={calloutHidden}
-			>
-				<StepEditor
-					column={selectedColumn}
-					input={result}
-					store={store}
-					step={candidateStep}
-					onDismiss={handleDismiss}
-					onAddStep={handleSave}
-				/>
-			</Callout>
+				column={selectedColumn}
+				input={result}
+				store={store}
+				step={candidateStep}
+				onCancel={handleCancel}
+				onSave={handleSave}
+			/>
 			<TableDropdown
 				tables={tables}
 				selectedKey={current?.id}
@@ -160,10 +156,3 @@ const Table = styled.div`
 	width: 1200px;
 	height: 800px;
 `
-
-const calloutStyles = {
-	root: {
-		width: 360,
-		maxHeight: 800,
-	},
-}

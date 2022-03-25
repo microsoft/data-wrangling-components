@@ -18,41 +18,22 @@ export interface StepEditorProps {
 	input: TableContainer
 	store: TableStore
 	step?: Step
-	onDismiss: () => void
-	onAddStep: (step: Step) => void
+	onCancel: () => void
+	onSave: (step: Step) => void
 }
 
 export const StepEditor: React.FC<StepEditorProps> = (props: any) => {
-	const { column, input, store, step, onAddStep, onDismiss } = props
+	const { column, input, store, step, onSave, onCancel } = props
 
-	if (!step) {
-		return null
-	}
-
-	return (
-		<Editor
-			column={column}
-			input={input}
-			store={store}
-			step={step}
-			onDismiss={onDismiss}
-			onAddStep={onAddStep}
-		/>
-	)
-}
-
-const Editor = (props: any) => {
-	const { column, input, store, step, onAddStep, onDismiss } = props
 	const [internal, setInternal] = useState<Step>(step)
 
 	useEffect(() => {
 		setInternal(step)
 	}, [step])
-	console.log(step, internal)
 
 	const handleSaveClick = useCallback(() => {
-		onAddStep(internal)
-	}, [internal, onAddStep])
+		onSave(internal)
+	}, [internal, onSave])
 
 	const handleChange = useCallback(update => setInternal(update), [setInternal])
 
@@ -73,7 +54,7 @@ const Editor = (props: any) => {
 					<ColumnName>{column}</ColumnName>column
 				</Title>
 				<IconButton
-					onClick={onDismiss}
+					onClick={onCancel}
 					iconProps={{
 						iconName: 'Cancel',
 					}}

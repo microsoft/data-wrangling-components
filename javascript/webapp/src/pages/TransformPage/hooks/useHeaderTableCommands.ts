@@ -21,13 +21,26 @@ export function useHeaderTableCommands(
 	return useMemo(
 		() => [
 			{
-				key: 'join',
+				key: Verb.Join,
 				text: 'Join',
 				iconProps: {
-					iconName: 'Merge',
+					iconName: 'BranchMerge',
 				},
 				onClick: (ev: any) =>
 					handleClick(ev, Verb.Join, {
+						args: {
+							on: column ? [column] : [],
+						},
+					}),
+			},
+			{
+				key: Verb.Lookup,
+				text: 'Lookup',
+				iconProps: {
+					iconName: 'BranchPullRequest',
+				},
+				onClick: (ev: any) =>
+					handleClick(ev, Verb.Lookup, {
 						args: {
 							on: column ? [column] : [],
 						},

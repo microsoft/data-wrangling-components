@@ -52,13 +52,13 @@ export function useTables(): {
 	)
 
 	const onCloneTable = useCallback(
-		async (original: TableContainer) => {
+		async (original: TableContainer, name?: string) => {
 			// apply the source table steps and store the resulting output
 			// the cloned table starts "clean" with no definition steps
 			const result = await applyTableDefinition(original, tables)
 			const clone = {
 				...cloneDeep(result),
-				id: `${original?.id} (edited)`,
+				id: name || `${original?.id} (edited)`,
 				definition: [],
 			}
 			setTables(prev => [...prev, clone])

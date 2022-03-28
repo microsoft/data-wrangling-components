@@ -4,9 +4,10 @@
  */
 import type { Step, TableContainer } from '@data-wrangling-components/core'
 import { createDefaultHeaderCommandBar } from '@data-wrangling-components/react'
-import type { ICommandBarItemProps } from '@fluentui/react'
+import type { ICommandBarProps } from '@fluentui/react'
 import { ContextualMenuItemType } from '@fluentui/react'
 import { useThematic } from '@thematic/react'
+import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 
 import { useHeaderColumnCommands } from './useHeaderColumnCommands.js'
@@ -19,7 +20,7 @@ export function useTableHeaderCommands(
 	steps: Step[],
 	onCloneTable: any,
 	onStepRequested: any,
-): any {
+): ReactElement<ICommandBarProps, any> {
 	const pinCommand = useSaveTableCommand(steps, table, onCloneTable)
 
 	const headerColumnCommands = useHeaderColumnCommands(column, onStepRequested)

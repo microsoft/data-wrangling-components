@@ -41,6 +41,7 @@ const defStyles = {
 	},
 	primarySet: {
 		width: '100%',
+		height: 36,
 	},
 }
 

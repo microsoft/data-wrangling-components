@@ -3,8 +3,10 @@
  * Licensed under the MIT license. See LICENSE file in the project.
  */
 import type { Step, TableContainer } from '@data-wrangling-components/core'
+import { createDefaultHeaderCommandBar } from '@data-wrangling-components/react'
 import type { ICommandBarItemProps } from '@fluentui/react'
 import { ContextualMenuItemType } from '@fluentui/react'
+import { useThematic } from '@thematic/react'
 import { useMemo } from 'react'
 
 import { useHeaderColumnCommands } from './useHeaderColumnCommands.js'
@@ -17,43 +19,50 @@ export function useTableHeaderCommands(
 	steps: Step[],
 	onCloneTable: any,
 	onStepRequested: any,
-): ICommandBarItemProps[] {
+): any {
 	const pinCommand = useSaveTableCommand(steps, table, onCloneTable)
 
 	const headerColumnCommands = useHeaderColumnCommands(column, onStepRequested)
 
 	const headerTableCommands = useHeaderTableCommands(column, onStepRequested)
 
+	const theme = useThematic()
 	return useMemo(
-		() => [
-			pinCommand,
-			{
-				key: '--divider-1--',
-				text: '|',
-				itemType: ContextualMenuItemType.Divider,
-				disabled: true,
-				buttonStyles: {
-					root: {
-						width: 20,
-						minWidth: 20,
-					},
+		() =>
+			createDefaultHeaderCommandBar(
+				{
+					items: [
+						pinCommand,
+						{
+							key: '--divider-1--',
+							text: '|',
+							itemType: ContextualMenuItemType.Divider,
+							disabled: true,
+							buttonStyles: {
+								root: {
+									width: 20,
+									minWidth: 20,
+								},
+							},
+						},
+						...headerColumnCommands,
+						{
+							key: '--divider-2--',
+							text: '|',
+							itemType: ContextualMenuItemType.Divider,
+							disabled: true,
+							buttonStyles: {
+								root: {
+									width: 20,
+									minWidth: 20,
+								},
+							},
+						},
+						...headerTableCommands,
+					],
 				},
-			},
-			...headerColumnCommands,
-			{
-				key: '--divider-2--',
-				text: '|',
-				itemType: ContextualMenuItemType.Divider,
-				disabled: true,
-				buttonStyles: {
-					root: {
-						width: 20,
-						minWidth: 20,
-					},
-				},
-			},
-			...headerTableCommands,
-		],
-		[pinCommand, headerColumnCommands, headerTableCommands],
+				theme,
+			),
+		[theme, pinCommand, headerColumnCommands, headerTableCommands],
 	)
 }

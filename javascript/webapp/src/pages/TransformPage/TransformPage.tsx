@@ -78,7 +78,7 @@ export const TransformPage: React.FC = memo(function TransformPage() {
 		[setCandidateStep],
 	)
 
-	const headerCommands = useTableHeaderCommands(
+	const headerCommandBar = useTableHeaderCommands(
 		current,
 		selectedColumn,
 		steps,
@@ -118,8 +118,8 @@ export const TransformPage: React.FC = memo(function TransformPage() {
 			<Table>
 				<ArqueroTableHeader
 					table={result.table!}
-					commands={headerCommands}
 					name={current?.id}
+					commandBar={headerCommandBar}
 				/>
 				<ArqueroDetailsList
 					table={result.table!}

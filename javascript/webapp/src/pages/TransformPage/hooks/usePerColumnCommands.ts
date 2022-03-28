@@ -24,32 +24,34 @@ export function usePerColumnCommands(
 	return useMemo(() => {
 		return (props: any) => {
 			const column = props?.column.key
-			return createDefaultCommandBar([
-				convert(
-					column,
-					steps,
+			return createDefaultCommandBar({
+				items: [
+					convert(
+						column,
+						steps,
 
-					onAddStep,
-					onUpdateStep,
-					onRemoveStep,
-				),
-				groupby(
-					column,
-					steps,
+						onAddStep,
+						onUpdateStep,
+						onRemoveStep,
+					),
+					groupby(
+						column,
+						steps,
 
-					onAddStep,
-					onUpdateStep,
-					onRemoveStep,
-				),
-				orderby(
-					column,
-					steps,
+						onAddStep,
+						onUpdateStep,
+						onRemoveStep,
+					),
+					orderby(
+						column,
+						steps,
 
-					onAddStep,
-					onUpdateStep,
-					onRemoveStep,
-				),
-			])
+						onAddStep,
+						onUpdateStep,
+						onRemoveStep,
+					),
+				],
+			})
 		}
 	}, [steps, onAddStep, onRemoveStep, onUpdateStep])
 }

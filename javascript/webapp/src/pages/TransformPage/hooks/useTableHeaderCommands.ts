@@ -11,6 +11,7 @@ import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 
 import { useHeaderColumnCommands } from './useHeaderColumnCommands.js'
+import { useHeaderOverflowColumnCommands } from './useHeaderOverflowColumnCommands.js'
 import { useHeaderTableCommands } from './useHeaderTableCommands.js'
 import { useSaveTableCommand } from './useSaveTableCommand.js'
 
@@ -26,6 +27,11 @@ export function useTableHeaderCommands(
 	const headerColumnCommands = useHeaderColumnCommands(column, onStepRequested)
 
 	const headerTableCommands = useHeaderTableCommands(column, onStepRequested)
+
+	const headerOverflowColumnCommands = useHeaderOverflowColumnCommands(
+		column,
+		onStepRequested,
+	)
 
 	const theme = useThematic()
 	return useMemo(
@@ -61,9 +67,16 @@ export function useTableHeaderCommands(
 						},
 						...headerTableCommands,
 					],
+					overflowItems: headerOverflowColumnCommands,
 				},
 				theme,
 			),
-		[theme, pinCommand, headerColumnCommands, headerTableCommands],
+		[
+			theme,
+			pinCommand,
+			headerColumnCommands,
+			headerTableCommands,
+			headerOverflowColumnCommands,
+		],
 	)
 }

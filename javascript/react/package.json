@@ -48,7 +48,7 @@
 		"rxjs": "^7.5.5"
 	},
 	"devDependencies": {
-		"@essex/scripts": "^22.0.1",
+		"@essex/scripts": "^22.0.3",
 		"@essex/tsconfig-base": "^1.0.2",
 		"@fluentui/react": "^8.68.2",
 		"@fluentui/react-hooks": "^8.5.5",

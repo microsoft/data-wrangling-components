@@ -39,7 +39,7 @@
 		"toposort": "^2.0.2"
 	},
 	"devDependencies": {
-		"@essex/scripts": "^22.0.1",
+		"@essex/scripts": "^22.0.3",
 		"@essex/tsconfig-base": "^1.0.2",
 		"@types/d3-time-format": "^4.0.0",
 		"@types/jest": "^27.5.1",
